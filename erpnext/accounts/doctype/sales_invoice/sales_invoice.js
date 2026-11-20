@@ -612,13 +612,13 @@ erpnext.accounts.SalesInvoiceController = class SalesInvoiceController extends (
 		});
 	}
 
-	asset(frm, cdt, cdn) {
+	asset(doc, cdt, cdn) {
 		var row = locals[cdt][cdn];
 		if (row.asset) {
 			frappe.call({
-				method: erpnext.assets.doctype.asset.depreciation.get_disposal_account_and_cost_center,
+				method: "erpnext.assets.doctype.asset.depreciation.get_disposal_account_and_cost_center",
 				args: {
-					company: frm.doc.company,
+					company: doc.company,
 				},
 				callback: function (r, rt) {
 					frappe.model.set_value(cdt, cdn, "income_account", r.message[0]);
