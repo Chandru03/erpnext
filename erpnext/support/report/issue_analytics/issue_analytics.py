@@ -102,7 +102,7 @@ class IssueAnalytics:
 		elif self.filters.range == "Quarterly":
 			period = "Quarter " + str(((date.month - 1) // 3) + 1)
 		else:
-			year = get_fiscal_year(date, self.filters.company)
+			year = get_fiscal_year(date, company=self.filters.company)
 			period = str(year[0])
 
 		if (
@@ -132,7 +132,7 @@ class IssueAnalytics:
 		elif self.filters.range == "Quarterly":
 			from_date = from_date.replace(month=(from_date.month - 1) // 3 * 3 + 1, day=1)
 		elif self.filters.range == "Yearly":
-			from_date = get_fiscal_year(from_date)[1]
+			from_date = get_fiscal_year(from_date, company=self.filters.company)[1]
 		else:
 			from_date = from_date + relativedelta(from_date, weekday=MO(-1))
 

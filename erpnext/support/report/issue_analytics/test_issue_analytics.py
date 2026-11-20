@@ -2,6 +2,7 @@ import frappe
 from frappe.desk.form.assign_to import add as add_assignment
 from frappe.utils import add_months, getdate
 
+from erpnext.accounts.utils import get_fiscal_year
 from erpnext.support.doctype.issue.test_issue import create_customer, make_issue
 from erpnext.support.doctype.service_level_agreement.test_service_level_agreement import (
 	create_service_level_agreements_for_issues,
@@ -158,6 +159,25 @@ class TestIssueAnalytics(ERPNextTestSuite):
 
 		row = self.get_row("2026-05-15", "2026-12-31", "Quarterly")
 		self.assertEqual((row["quarter_2"], row["quarter_3"], row["quarter_4"]), (1, 1, 1))
+
+	def test_yearly_issue_count_uses_the_company_fiscal_year(self):
+		# another company's fiscal year that overlaps the second half of _Test Company's
+		frappe.get_doc(
+			{
+				"doctype": "Fiscal Year",
+				"year": "_Test Other Company FY 2026-27",
+				"year_start_date": "2026-07-01",
+				"year_end_date": "2027-06-30",
+				"companies": [{"company": "_Test Company 1"}],
+			}
+		).insert()
+		create_customer("__Test Customer", "_Test SLA Customer Group", "__Test SLA Territory")
+		make_issue(getdate("2026-08-15"), "__Test Customer", 1)
+
+		fiscal_year, year_start, year_end = get_fiscal_year("2026-08-15", company="_Test Company")
+		columns, rows = execute(self.get_filters(year_start, year_end, "Yearly"))[:2]
+		self.assertEqual([c["fieldname"] for c in columns[1:]], [frappe.scrub(fiscal_year), "total"])
+		self.assertEqual((rows[0][frappe.scrub(fiscal_year)], rows[0]["total"]), (1, 1))
 
 	def test_issue_count_respects_user_permissions(self):
 		from frappe.permissions import add_user_permission
