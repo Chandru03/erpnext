@@ -21,7 +21,7 @@ erpnext.accounts.PurchaseInvoice = class PurchaseInvoice extends erpnext.buying.
 			});
 		}
 
-		this.frm.set_query("unrealized_profit_loss_account", function () {
+		this.frm.set_query("unrealized_profit_loss_account", function (doc) {
 			return {
 				filters: {
 					company: doc.company,
@@ -31,7 +31,7 @@ erpnext.accounts.PurchaseInvoice = class PurchaseInvoice extends erpnext.buying.
 			};
 		});
 
-		this.frm.set_query("expense_account", "items", function () {
+		this.frm.set_query("expense_account", "items", function (doc) {
 			return {
 				query: "erpnext.controllers.queries.get_expense_account",
 				filters: {
